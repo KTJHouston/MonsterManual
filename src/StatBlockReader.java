@@ -529,22 +529,25 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			}
 			
 			//save actions:
-			for( int i = 16; i < 22; i++ ) {
+			for( int i = 16; i < 34; i++ ) {
 				switch(i) {
-					case 16 :
+					case 16 : case 22 : case 28 ://names:
 						String attackName = ((JTextField)comps.get( compNames.get(i) )).getText();
 						if( attackName.equals("") || attackName.equals(" Attack Name") ) {
+							if( i == 16 ) throw new Exception("No Attack Added");
 							i = 34;
+							creatures.writeBoolean(false);
 							break;
+						} else if( i != 16 ) {
+							creatures.writeBoolean(true);
 						}
-					case 19 :
-					case 21 :
+					case 19 : case 21 : case 25 : case 27 : case 31 : case 33 ://damages and notes:
 						creatures.writeUTF( ((JTextField)comps.get( compNames.get(i) )).getText() );
 						break;
-					case 17 :
+					case 17 : case 23 : case 29 ://attack bonuses:
 						creatures.writeByte( Integer.parseInt(((JTextField)comps.get( compNames.get(i) )).getText()) );
 						break;
-					case 18 :
+					case 18 : case 24 : case 30 ://ranges:
 						StringTokenizer range = new StringTokenizer( ((JTextField)comps.get( compNames.get(i) )).getText(), " /ftFT" );
 						if( range.countTokens() > 2 ) throw new Exception("Range Input Error");
 						if( range.countTokens() == 2 ) {
@@ -559,7 +562,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 							creatures.writeShort( 5 );
 						}
 						break;
-					case 20 :
+					case 20 : case 26 : case 32 ://damage types:
 						StringTokenizer typeTokenizer = new StringTokenizer( ((JTextField)comps.get( compNames.get(i) )).getText(), " ()" );
 						Exception e = new Exception("Attack Type Input Error");
 						if( typeTokenizer.countTokens() > 1 ) throw e;
