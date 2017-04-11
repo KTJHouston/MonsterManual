@@ -576,6 +576,12 @@ public class StatBlockReader extends JFrame implements ActionListener {
 				}
 			}
 			
+			//save Additional notes:
+			//TODO finsh
+			
+			//close creatures:
+			creatures.close();
+			
 			//save creature name and index
 			indexes.put( name, indexes.get("END") );
 			indexes.put( "END", creatures.length() );
@@ -625,8 +631,30 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			}
 			output += "\n";
 			
-			//TODO add other info
+			output += "Attacks:\n";
 			
+			boolean areMoreAttacks = true;
+			while(areMoreAttacks) {
+				output += creatures.readUTF() + ": ";
+				output += String.format( "%+d ", creatures.readByte() );
+				if( creatures.readBoolean() ) {
+					output += "(" + creatures.readShort() + "/" + creatures.readShort() + "ft)\t";
+				} else {
+					output += "(" + creatures.readShort() + "ft)\t";
+				}
+				output += creatures.readUTF() + "dmg ";
+				char t;
+				if( (t = creatures.readChar()) != 'z' )
+					output += "(" + t + ") ";
+				output += creatures.readUTF() + "\n";
+				areMoreAttacks = creatures.readBoolean();
+			}
+			
+			output += creatures.readUTF();
+			
+			//TODO add other info
+			//close creatures:
+			creatures.close();
 			
 			return output;
 		} catch (Exception e) {
