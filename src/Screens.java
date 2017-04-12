@@ -1,8 +1,7 @@
 
 public enum Screens {
 
-	title,
-	createNew,
-	read;
+	OPENING,
+	CREATE_NEW;
 	
 }

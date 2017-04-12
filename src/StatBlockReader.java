@@ -1,13 +1,10 @@
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.StringTokenizer;
 import javax.swing.*;
 
@@ -50,41 +47,13 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		}
 	}
 	
-	private void saveIndexes() {
-		try {
-			Object[] temp = indexes.keySet().toArray();
-			ArrayList<String> keys = new ArrayList<String>();
-			for( Object t : temp )
-				keys.add( (String)t );
-			RandomAccessFile ind = new RandomAccessFile("indexes.dat", "rw" );
-			
-			ind.setLength(0);
-			for( String k : keys ) {
-				if( !k.equals("END") ) {
-					ind.writeUTF( k );
-					ind.writeLong( indexes.get(k) );
-				}
-			}
-			
-			ind.writeUTF("END");
-			ind.writeLong( indexes.get("END") );
-			
-			ind.close();
-			
-		} catch (Exception e) {
-			System.out.println( "saveIndexes():" );
-			e.printStackTrace();
-		}
-		
-	}
-	
 	private void initializeStartFrame() {
 		setTitle("Stat Blocks");
 		setLayout(null);
 		setResizable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize( 500, 175 );
-		setPreferredSize(new Dimension( 500, 175 ));
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setSize( 500, 250 );
+		setPreferredSize(getSize());
 		setLocationByPlatform(true);
 		
 		comps = new HashMap<String, Component>();
@@ -422,6 +391,30 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		compNames.add("CompleteCreature");
 		comps.put( compNames.get(compNames.size()-1), complete );
 		add(complete);
+
+		JButton delete = new JButton("Delete Creature:");
+		delete.setSize( 150, 25 );
+		delete.setLocation( 97, 110 );
+		delete.addActionListener(this);
+		compNames.add("Delete");
+		comps.put( compNames.get(compNames.size()-1), delete );
+		add(delete);
+		
+		JTextField deleteName = new JTextField();
+		deleteName.setToolTipText("Creature to Delete");
+		deleteName.setSize( 150, 25 );
+		deleteName.setLocation( 253, 110 );
+		compNames.add("DeleteName");
+		comps.put( compNames.get(compNames.size()-1), deleteName );
+		add(deleteName);
+
+		JButton list = new JButton("List Creatures");
+		list.setSize( 175, 25 );
+		list.setLocation( 162, 150 );
+		list.addActionListener(this);
+		compNames.add("List");
+		comps.put( compNames.get(compNames.size()-1), list );
+		add(list);
 	}
 	
 	public static void main( String[] args ) {
@@ -430,19 +423,36 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e)  {
+	public void actionPerformed( ActionEvent e ) {
 		if( e.getSource().equals(comps.get("CreateNew")) ) {
 			
-			newScreen( Screens.createNew );
+			newScreen( Screens.CREATE_NEW );
 			
 		} else if( e.getSource().equals(comps.get("LookUp")) ) {
 			
-			System.out.println( lookUp( ((JTextField)comps.get("LookUpName")).getText() ) );
+			String creatureName = ((JTextField)comps.get("LookUpName")).getText();
+			String creatureInfo = lookUp( creatureName );
+			if( creatureInfo == null ) return;
+			creatureInfo = creatureInfo.substring( creatureName.length() + 1 );
+			//start thread:
+			new Thread(new InfoFrame( creatureName, creatureInfo )).start();
+			
+		} else if( e.getSource().equals(comps.get("Delete")) ) {
+			
+			if( JOptionPane.showConfirmDialog( null, "Are you sure you want to delete this creature?" ) == 0 )
+				if( deleteCreatureIndex( ((JTextField)comps.get("DeleteName")).getText() ) )
+					JOptionPane.showMessageDialog( null, "Creature Deleted" );
+				else
+					JOptionPane.showMessageDialog( null, "Creature Not Found" );
+			
+		} else if( e.getSource().equals(comps.get("List")) ) {
+			
+			String list = orderNames();
 			
 		} else if( e.getSource().equals(comps.get("CompleteCreature")) ) {
 			
-			saveCreature();
-			//TODO return to main screen
+			if( saveCreature() )
+				newScreen( Screens.OPENING );
 			
 		} else {
 			System.out.println( e.toString() );
@@ -451,12 +461,25 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	
 	private void newScreen( Screens s ) {
 		switch(s) {
-			case createNew:
+			case OPENING:
+				turnOffAll();
+				
+				setSize(getPreferredSize());
+				
+				for( int i = 0; i < 3; i++ )
+					comps.get(compNames.get(i)).setVisible(true);
+				for( int i = 36; i < 40; i++ ) 
+					comps.get(compNames.get(i)).setVisible(true);
+				comps.get("LookUpName").requestFocus();
+				
+				
+				break;
+			case CREATE_NEW:
 				turnOffAll();
 
-				setSize( 525, 600 );
-				setResizable(true);
-				for( int i = 3; i < compNames.size(); i++ )
+				setSize( 505, 580 );
+				
+				for( int i = 3; i < 37; i++ )
 					comps.get(compNames.get(i)).setVisible(true);
 				comps.get("CreatureName").requestFocus();
 				
@@ -470,6 +493,33 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		for( String n : compNames ) {
 			comps.get(n).setVisible(false);
 		}
+	}
+	
+	private boolean deleteCreatureIndex( String creatureName ) {
+		if( indexes.remove(creatureName) == null )
+			return false;
+		saveIndexes();
+		return true;
+	}
+	
+	private String orderNames() {
+		
+		ArrayList<String> list = new ArrayList<String>();
+		for( String s : indexes.keySet() )
+			list.add(s.toString());
+		
+		ArrayList<String> mys = new ArrayList<String>();
+		for( int i = 0; i < list.size(); i++ )
+			if( list.get(i).substring( 0, 3 ).equals("My ") )
+				mys.add( list.remove(i) );
+		
+		for( int i = 0; i < mys.size(); i++ ) {
+			for( int j = 0; j < i; j++ ) {
+				
+			}
+		}
+		
+		return null;
 	}
 
 	@SuppressWarnings("resource") 
@@ -531,7 +581,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			//save actions:
 			for( int i = 16; i < 34; i++ ) {
 				switch(i) {
-					case 16 : case 22 : case 28 ://names:
+					case 16: case 22: case 28://names:
 						String attackName = ((JTextField)comps.get( compNames.get(i) )).getText();
 						if( attackName.equals("") || attackName.equals(" Attack Name") ) {
 							if( i == 16 ) throw new Exception("No Attack Added");
@@ -541,13 +591,13 @@ public class StatBlockReader extends JFrame implements ActionListener {
 						} else if( i != 16 ) {
 							creatures.writeBoolean(true);
 						}
-					case 19 : case 21 : case 25 : case 27 : case 31 : case 33 ://damages and notes:
+					case 19: case 21: case 25: case 27: case 31: case 33://damages and notes:
 						creatures.writeUTF( ((JTextField)comps.get( compNames.get(i) )).getText() );
 						break;
-					case 17 : case 23 : case 29 ://attack bonuses:
+					case 17: case 23: case 29://attack bonuses:
 						creatures.writeByte( Integer.parseInt(((JTextField)comps.get( compNames.get(i) )).getText()) );
 						break;
-					case 18 : case 24 : case 30 ://ranges:
+					case 18: case 24: case 30://ranges:
 						StringTokenizer range = new StringTokenizer( ((JTextField)comps.get( compNames.get(i) )).getText(), " /ftFT" );
 						if( range.countTokens() > 2 ) throw new Exception("Range Input Error");
 						if( range.countTokens() == 2 ) {
@@ -562,7 +612,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 							creatures.writeShort( 5 );
 						}
 						break;
-					case 20 : case 26 : case 32 ://damage types:
+					case 20: case 26: case 32://damage types:
 						StringTokenizer typeTokenizer = new StringTokenizer( ((JTextField)comps.get( compNames.get(i) )).getText(), " ()" );
 						Exception e = new Exception("Attack Type Input Error");
 						if( typeTokenizer.countTokens() > 1 ) throw e;
@@ -577,10 +627,8 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			}
 			
 			//save Additional notes:
-			//TODO finsh
+			creatures.writeUTF( ((JTextArea)comps.get("AdditionalInformation")).getText() );
 			
-			//close creatures:
-			creatures.close();
 			
 			//save creature name and index
 			indexes.put( name, indexes.get("END") );
@@ -588,26 +636,59 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			
 			//rewrite index file:
 			saveIndexes();
+			//close creatures:
+			creatures.close();
 			
 			return true;
 		} catch( IOException e ) {
-			System.out.println( "saveCreature():" );
-			e.printStackTrace();
-			JOptionPane.showMessageDialog( null, "Unknown Filing Error", "Filing Error", JOptionPane.ERROR_MESSAGE );
+			if( e.equals(new Exception("Stream Closed")) ) {
+				System.out.println("Saved");
+			} else {
+				System.out.println( "saveCreature():" );
+				e.printStackTrace();
+				JOptionPane.showMessageDialog( null, "Unknown Filing Error", "Filing Error", JOptionPane.ERROR_MESSAGE );
+			}
 		} catch ( Exception e ) {
 			System.out.println( "saveCreature():" );
 			e.printStackTrace();
-			//TODO reset files as if no new creature was added
 			JOptionPane.showMessageDialog( null, e.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE );
 		}
 		return false;
 	}
 	
-	private String lookUp( String name ) {
+	private void saveIndexes() {
+		try {
+			Object[] temp = indexes.keySet().toArray();
+			ArrayList<String> keys = new ArrayList<String>();
+			for( Object t : temp )
+				keys.add( (String)t );
+			RandomAccessFile ind = new RandomAccessFile("indexes.dat", "rw" );
+			
+			ind.setLength(0);
+			for( String k : keys ) {
+				if( !k.equals("END") ) {
+					ind.writeUTF( k );
+					ind.writeLong( indexes.get(k) );
+				}
+			}
+			
+			ind.writeUTF("END");
+			ind.writeLong( indexes.get("END") );
+			
+			ind.close();
+			
+		} catch (Exception e) {
+			System.out.println( "saveIndexes():" );
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private String lookUp( String creatureName ) {
 		try {
 			
 			RandomAccessFile creatures = new RandomAccessFile( "creatures.dat", "r" );
-			creatures.seek( indexes.get(name) );
+			creatures.seek( indexes.get(creatureName) );
 			
 			String output = "";
 			output += creatures.readUTF() + "\n";
@@ -631,7 +712,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			}
 			output += "\n";
 			
-			output += "Attacks:\n";
+			output += "\nAttacks:\n";
 			
 			boolean areMoreAttacks = true;
 			while(areMoreAttacks) {
@@ -650,19 +731,26 @@ public class StatBlockReader extends JFrame implements ActionListener {
 				areMoreAttacks = creatures.readBoolean();
 			}
 			
-			output += creatures.readUTF();
+			output += "\nMore Info:\n" + creatures.readUTF();
 			
-			//TODO add other info
 			//close creatures:
 			creatures.close();
 			
 			return output;
+		} catch( IOException e ) {
+			if( e.equals(new Exception("Stream Closed")) ) {
+				System.out.println("Saved");
+			} else {
+				System.out.println( "saveCreature():" );
+				e.printStackTrace();
+				JOptionPane.showMessageDialog( null, "Unknown Filing Error", "Filing Error", JOptionPane.ERROR_MESSAGE );
+			}
 		} catch (Exception e) {
 			System.out.println( "lookUp(String):" );
 			e.printStackTrace();
 			JOptionPane.showInternalMessageDialog( null, e.getMessage(), "Error", ERROR );
-			return null;
 		}
+		return null;
 	}
 	
 }
