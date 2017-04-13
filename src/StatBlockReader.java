@@ -448,6 +448,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		} else if( e.getSource().equals(comps.get("List")) ) {
 			
 			String list = orderNames();
+			new Thread(new InfoFrame( "List", list )).start();
 			
 		} else if( e.getSource().equals(comps.get("CompleteCreature")) ) {
 			
@@ -513,13 +514,31 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			if( list.get(i).substring( 0, 3 ).equals("My ") )
 				mys.add( list.remove(i) );
 		
-		for( int i = 0; i < mys.size(); i++ ) {
-			for( int j = 0; j < i; j++ ) {
-				
-			}
+		for( int i = 1; i < mys.size(); i++ ) {
+			int j = i - 1;
+			while( j > 0 && mys.get(i).compareTo(mys.get(j)) < 0 )
+				j--;
+			mys.add( j, mys.remove(i) );
 		}
 		
-		return null;
+		String output = "";
+		for( String m : mys ) 
+			output += m + ", ";
+		output = output.substring( 0, output.length() - 2 ) + "\n";
+		
+		for( int i = 1; i < list.size(); i++ ) {
+			int j = i - 1;
+			while( j > 0 && list.get(i).compareTo(list.get(j)) < 0 )
+				j--;
+			String temp = list.remove(i);
+			list.add( j, temp );
+		}
+		
+		for( String l : list )
+			output += l + ", ";
+		output = output.substring( 0, output.length() - 2 );
+		
+		return output;
 	}
 
 	@SuppressWarnings("resource") 

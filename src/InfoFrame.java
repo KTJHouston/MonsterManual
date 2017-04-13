@@ -8,10 +8,19 @@ public class InfoFrame extends JFrame implements Runnable {
 	private static final long serialVersionUID = 2;
 	private JTextArea box;
 	private String title, info;
+	private boolean isEditable;
 	
-	public InfoFrame( String creatureName, String info ) {
-		title = creatureName;
+	
+	public InfoFrame( String title, String info ) {
+		this.title = title;
 		this.info = info;
+		isEditable = true;
+	}
+	
+	public InfoFrame( String title, String info, boolean isEditable ) {
+		this.title = title;
+		this.info = info;
+		this.isEditable = isEditable;
 	}
 	
 	private void initialize() {
@@ -28,6 +37,7 @@ public class InfoFrame extends JFrame implements Runnable {
 		box.setFont(new Font("Courier", Font.PLAIN, 18));
 		box.setColumns(67);
 		box.setLineWrap(true);
+		box.setEditable(isEditable);
 		add(box);
 	}
 	
