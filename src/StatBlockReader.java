@@ -505,31 +505,41 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	
 	private String orderNames() {
 		
+		//create ArrayList of creature names:
 		ArrayList<String> list = new ArrayList<String>();
 		for( String s : indexes.keySet() )
 			list.add(s.toString());
 		
+		//remove END:
+		list.remove("END");
+		
+		//create sub ArrayList of Creatures starting with "My "
 		ArrayList<String> mys = new ArrayList<String>();
 		for( int i = 0; i < list.size(); i++ )
 			if( list.get(i).substring( 0, 3 ).equals("My ") )
 				mys.add( list.remove(i) );
 		
-		for( int i = 1; i < mys.size(); i++ ) {
-			int j = i - 1;
-			while( j > 0 && mys.get(i).compareTo(mys.get(j)) < 0 )
-				j--;
-			mys.add( j, mys.remove(i) );
+		//Alphabetize mys and add to output:
+		String output = "";
+		if ( mys.size() > 0 ) {
+			for (int i = 1; i < mys.size(); i++) {
+				int j = i;
+				while (j >= 0 && mys.get(i).compareTo(mys.get(j)) <= 0)
+					j--;
+				j++;
+				String temp = mys.remove(i);
+				mys.add(j, temp);
+			}
+			for (String m : mys)
+				output += m + ", ";
+			output = output.substring(0, output.length() - 2) + "\n";
 		}
 		
-		String output = "";
-		for( String m : mys ) 
-			output += m + ", ";
-		output = output.substring( 0, output.length() - 2 ) + "\n";
-		
 		for( int i = 1; i < list.size(); i++ ) {
-			int j = i - 1;
-			while( j > 0 && list.get(i).compareTo(list.get(j)) < 0 )
+			int j = i;
+			while( j >= 0 && list.get(i).compareTo(list.get(j)) <= 0 )
 				j--;
+			j++;
 			String temp = list.remove(i);
 			list.add( j, temp );
 		}
