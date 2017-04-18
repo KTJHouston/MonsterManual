@@ -13,10 +13,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1;
 	private HashMap<String, Component> comps;
 	private ArrayList<String> compNames;
-	
 	private HashMap<String, Long> indexes; 
-	
-	//TODO create delete creature button (removes index of that creature)
 	
 	public StatBlockReader() {
 		readIndexes();
@@ -200,7 +197,6 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		add(actionLabel);
 		
 		JTextField atckName1 = new JTextField();
-		atckName1.setText(" Attack Name");
 		atckName1.setToolTipText("Attack Name");
 		atckName1.setSize( 80, 25 );
 		atckName1.setLocation( 230, 40 );
@@ -440,9 +436,10 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		} else if( e.getSource().equals(comps.get("Delete")) ) {
 			
 			if( JOptionPane.showConfirmDialog( null, "Are you sure you want to delete this creature?" ) == 0 )
-				if( deleteCreatureIndex( ((JTextField)comps.get("DeleteName")).getText() ) )
+				if( deleteCreatureIndex( ((JTextField)comps.get("DeleteName")).getText() ) ) {
 					JOptionPane.showMessageDialog( null, "Creature Deleted" );
-				else
+					((JTextField)comps.get("DeleteName")).setText("");
+				} else
 					JOptionPane.showMessageDialog( null, "Creature Not Found" );
 			
 		} else if( e.getSource().equals(comps.get("List")) ) {
@@ -452,8 +449,10 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			
 		} else if( e.getSource().equals(comps.get("CompleteCreature")) ) {
 			
-			if( saveCreature() )
+			if( saveCreature() ) {
 				newScreen( Screens.OPENING );
+				resetCreatureBoxes();
+			}
 			
 		} else {
 			System.out.println( e.toString() );
@@ -710,6 +709,16 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			System.out.println( "saveIndexes():" );
 			e.printStackTrace();
 		}
+		
+	}
+	
+	private void resetCreatureBoxes() {
+
+		for( int i = 3; i < 35; i++ )
+			if( comps.get(compNames.get(i)) instanceof JTextField )
+				((JTextField)comps.get(compNames.get(i))).setText("");
+		
+		((JTextArea)comps.get("AdditionalInformation")).setText("");
 		
 	}
 	
