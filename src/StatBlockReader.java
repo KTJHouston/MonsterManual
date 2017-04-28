@@ -17,7 +17,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	
 	public StatBlockReader() {
 		readIndexes();
-		initializeStartFrame();
+		initializeFrames();
 	}
 	
 	private void readIndexes() {
@@ -44,7 +44,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		}
 	}
 	
-	private void initializeStartFrame() {
+	private void initializeFrames() {
 		setTitle("Stat Blocks");
 		setLayout(null);
 		setResizable(false);
