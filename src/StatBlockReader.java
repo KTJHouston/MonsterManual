@@ -13,35 +13,9 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1;
 	private HashMap<String, Component> comps;
 	private ArrayList<String> compNames;
-	private HashMap<String, Long> indexes; 
 	
 	public StatBlockReader() {
-		readIndexes();
 		initializeFrames();
-	}
-	
-	private void readIndexes() {
-		indexes = new HashMap<String, Long>();
-		try {
-			RandomAccessFile in = new RandomAccessFile( "indexes.dat", "r" );
-			in.seek(0);
-			
-			boolean read = true;
-			while( read ) {
-				String name = in.readUTF();
-				long i = in.readLong();
-				indexes.put( name, i );
-				if( name.equals("END") ) read = false;
-			}
-				
-			
-			in.close();
-			
-		} catch ( Exception e ) {
-			indexes.put( "END", 0l );
-			System.out.println("readIndexes():");
-			e.printStackTrace();
-		}
 	}
 	
 	private void initializeFrames() {
@@ -412,11 +386,6 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		comps.put( compNames.get(compNames.size()-1), list );
 		add(list);
 	}
-	
-	public static void main( String[] args ) {
-		JFrame f = new StatBlockReader();
-		f.setVisible(true);
-	}
 
 	@Override
 	public void actionPerformed( ActionEvent e ) {
@@ -436,7 +405,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		} else if( e.getSource().equals(comps.get("Delete")) ) {
 			
 			if( JOptionPane.showConfirmDialog( null, "Are you sure you want to delete this creature?" ) == 0 )
-				if( deleteCreatureIndex( ((JTextField)comps.get("DeleteName")).getText() ) ) {
+				if( deleteCreatureFile( ((JTextField)comps.get("DeleteName")).getText() ) ) {
 					JOptionPane.showMessageDialog( null, "Creature Deleted" );
 					((JTextField)comps.get("DeleteName")).setText("");
 				} else
@@ -465,10 +434,9 @@ public class StatBlockReader extends JFrame implements ActionListener {
 				turnOffAll();
 				
 				setSize(getPreferredSize());
-				
 				for( int i = 0; i < 3; i++ )
 					comps.get(compNames.get(i)).setVisible(true);
-				for( int i = 36; i < 40; i++ ) 
+				for( int i = 37; i < 40; i++ ) 
 					comps.get(compNames.get(i)).setVisible(true);
 				comps.get("LookUpName").requestFocus();
 				
@@ -495,19 +463,23 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		}
 	}
 	
-	private boolean deleteCreatureIndex( String creatureName ) {
-		if( indexes.remove(creatureName) == null )
-			return false;
-		saveIndexes();
-		return true;
+	private boolean deleteCreatureFile( String creatureName ) {
+		File f = new File( creatureName + ".dat" );
+		return f.delete();
 	}
 	
 	private String orderNames() {
 		
 		//create ArrayList of creature names:
+		File file = new File(System.getProperty("user.dir"));
+		File[] fileList = file.listFiles();
+		if( fileList == null )
+			System.out.println("NULL");
+		System.out.println(fileList.length);
 		ArrayList<String> list = new ArrayList<String>();
-		for( String s : indexes.keySet() )
-			list.add(s.toString());
+		for( File f : fileList )
+			list.add( new StringTokenizer( f.getName(), "." ).nextToken() );
+		list.remove("Monster Manual");
 		
 		//remove END:
 		list.remove("END");
@@ -553,17 +525,17 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	@SuppressWarnings("resource") 
 	private boolean saveCreature() {
 		try {
-			//start file readers:
-			RandomAccessFile creatures = new RandomAccessFile( new File("creatures.dat"), "rw" );
-			
 			
 			//save name of creature to save index later && check is already exists:
 			String name = ((JTextField)comps.get("CreatureName")).getText();
 			if( name.length() == 0 ) throw new Exception( "No Creature Name" );
-			if( indexes.containsKey(name) ) throw new Exception( "Creature Name already exists" );
+			
+			//start file readers:
+			File f = new File( name + ".dat" );
+			if( f.exists() ) throw new Exception( "This Creature File Already Exists" );
+			RandomAccessFile creatures = new RandomAccessFile( f, "rw" );
 			
 			//save creature info:
-			creatures.seek( indexes.get("END") );
 			creatures.writeUTF( name );//UTF: name
 			
 			creatures.writeShort( Short.parseShort( ((JTextField)comps.get("AC")).getText() ) );//short: AC
@@ -657,13 +629,6 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			//save Additional notes:
 			creatures.writeUTF( ((JTextArea)comps.get("AdditionalInformation")).getText() );
 			
-			
-			//save creature name and index
-			indexes.put( name, indexes.get("END") );
-			indexes.put( "END", creatures.length() );
-			
-			//rewrite index file:
-			saveIndexes();
 			//close creatures:
 			creatures.close();
 			
@@ -683,35 +648,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		}
 		return false;
 	}
-	
-	private void saveIndexes() {
-		try {
-			Object[] temp = indexes.keySet().toArray();
-			ArrayList<String> keys = new ArrayList<String>();
-			for( Object t : temp )
-				keys.add( (String)t );
-			RandomAccessFile ind = new RandomAccessFile("indexes.dat", "rw" );
-			
-			ind.setLength(0);
-			for( String k : keys ) {
-				if( !k.equals("END") ) {
-					ind.writeUTF( k );
-					ind.writeLong( indexes.get(k) );
-				}
-			}
-			
-			ind.writeUTF("END");
-			ind.writeLong( indexes.get("END") );
-			
-			ind.close();
-			
-		} catch (Exception e) {
-			System.out.println( "saveIndexes():" );
-			e.printStackTrace();
-		}
-		
-	}
-	
+
 	private void resetCreatureBoxes() {
 
 		for( int i = 3; i < 35; i++ )
@@ -725,8 +662,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	private String lookUp( String creatureName ) {
 		try {
 			
-			RandomAccessFile creatures = new RandomAccessFile( "creatures.dat", "r" );
-			creatures.seek( indexes.get(creatureName) );
+			RandomAccessFile creatures = new RandomAccessFile( creatureName + ".dat", "r" );
 			
 			String output = "";
 			output += creatures.readUTF() + "\n";
@@ -775,6 +711,9 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			creatures.close();
 			
 			return output;
+		} catch( FileNotFoundException e ) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog( null, "No Creature of that Name Found", "Filing Error", JOptionPane.ERROR_MESSAGE );
 		} catch( IOException e ) {
 			if( e.equals(new Exception("Stream Closed")) ) {
 				System.out.println("Saved");
@@ -789,6 +728,11 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			JOptionPane.showInternalMessageDialog( null, e.getMessage(), "Error", ERROR );
 		}
 		return null;
+	}
+	
+	public static void main( String[] args ) {
+		JFrame f = new StatBlockReader();
+		f.setVisible(true);
 	}
 	
 }
