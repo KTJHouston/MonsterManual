@@ -434,10 +434,9 @@ public class StatBlockReader extends JFrame implements ActionListener {
 				turnOffAll();
 				
 				setSize(getPreferredSize());
-				
 				for( int i = 0; i < 3; i++ )
 					comps.get(compNames.get(i)).setVisible(true);
-				for( int i = 36; i < 40; i++ ) 
+				for( int i = 37; i < 40; i++ ) 
 					comps.get(compNames.get(i)).setVisible(true);
 				comps.get("LookUpName").requestFocus();
 				
@@ -472,8 +471,15 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	private String orderNames() {
 		
 		//create ArrayList of creature names:
-		//TODO the line above
+		File file = new File(System.getProperty("user.dir"));
+		File[] fileList = file.listFiles();
+		if( fileList == null )
+			System.out.println("NULL");
+		System.out.println(fileList.length);
 		ArrayList<String> list = new ArrayList<String>();
+		for( File f : fileList )
+			list.add( new StringTokenizer( f.getName(), "." ).nextToken() );
+		list.remove("Monster Manual");
 		
 		//remove END:
 		list.remove("END");
@@ -525,8 +531,6 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			if( name.length() == 0 ) throw new Exception( "No Creature Name" );
 			
 			//start file readers:
-			//TODO save to new file of the creatures name
-			//TODO check if this creatures file already exists
 			File f = new File( name + ".dat" );
 			if( f.exists() ) throw new Exception( "This Creature File Already Exists" );
 			RandomAccessFile creatures = new RandomAccessFile( f, "rw" );
@@ -707,6 +711,9 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			creatures.close();
 			
 			return output;
+		} catch( FileNotFoundException e ) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog( null, "No Creature of that Name Found", "Filing Error", JOptionPane.ERROR_MESSAGE );
 		} catch( IOException e ) {
 			if( e.equals(new Exception("Stream Closed")) ) {
 				System.out.println("Saved");
