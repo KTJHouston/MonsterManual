@@ -1,5 +1,8 @@
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -20,107 +23,109 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	
 	private void initializeFrames() {
 		setTitle("Stat Blocks");
-		setLayout(null);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setSize( 500, 250 );
+		setSize( 500, 205 );
 		setPreferredSize(getSize());
 		setLocationByPlatform(true);
+		setLayout(new FlowLayout( FlowLayout.LEFT, 10, 10 ));
 		
 		comps = new HashMap<String, Component>();
 		compNames = new ArrayList<String>();
 		
+		JPanel createNewPanel = new JPanel();
+		createNewPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 0, 0 ));
+		
 		JButton createNew = new JButton("Create New Stat Block");
-		createNew.setSize( 175, 25 );
-		createNew.setLocation( 162, 30 );
 		createNew.addActionListener(this);
 		compNames.add("CreateNew");
 		comps.put( compNames.get(compNames.size()-1), createNew );
 		add(createNew);
-
+		
+		JPanel lookUpPanel = new JPanel();
+		lookUpPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 0, 0 ));
+		add(lookUpPanel);
+		
 		JButton lookUp = new JButton("Look Up Stat Block:");
-		lookUp.setSize( 150, 25 );
-		lookUp.setLocation( 97, 70 );
 		lookUp.addActionListener(this);
 		compNames.add("LookUp");
 		comps.put( compNames.get(compNames.size()-1), lookUp );
-		add(lookUp);
+		lookUpPanel.add(lookUp);
+		
+		lookUpPanel.add(new JLabel("   "));//spacer
 		
 		JTextField lookUpName = new JTextField();
 		lookUpName.setToolTipText("Creature to Look Up");
-		lookUpName.setSize( 150, 25 );
-		lookUpName.setLocation( 253, 70 );
+		lookUpName.setColumns(15);
 		compNames.add("LookUpName");
 		comps.put( compNames.get(compNames.size()-1), lookUpName );
-		add(lookUpName);
+		lookUpPanel.add(lookUpName);
+		
+		JPanel namePanel = new JPanel();
+		namePanel.setLayout(new FlowLayout( FlowLayout.LEFT, 0, 0 ));
+		namePanel.setVisible(false);
+		add(namePanel);
 		
 		JTextField name = new JTextField("Creature Name");
 		name.setToolTipText("Creature Name");
-		name.setSize( 100, 25 );
-		name.setLocation( 15, 15 );
-		name.setVisible(false);
+		name.setColumns(15);
 		compNames.add("CreatureName");
 		comps.put( compNames.get(compNames.size()-1), name );
-		add(name);
+		namePanel.add(name);
+		
+		namePanel.add(new JLabel("                                                                                                  "));
+		
+		JPanel statPanel = new JPanel();
+		statPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 0, 0 ));
+		add(statPanel);
 		
 		JLabel acLabel = new JLabel();
 		acLabel.setText("AC:");
-		acLabel.setSize( 25, 25 );
-		acLabel.setLocation( 15, 40 );
 		acLabel.setVisible(false);
 		compNames.add("ACLabel");
 		comps.put( compNames.get(compNames.size()-1), acLabel );
-		add(acLabel);
+		statPanel.add(acLabel);
 		
 		JTextField ac = new JTextField();
 		ac.setToolTipText("Armor Class");
-		ac.setSize( 20, 25 );
-		ac.setLocation( 40, 40 );
+		ac.setColumns(3);
 		ac.setVisible(false);
 		compNames.add("AC");
 		comps.put( compNames.get(compNames.size()-1), ac );
-		add(ac);
+		statPanel.add(ac);
 		
 		JLabel hpLabel = new JLabel();
 		hpLabel.setText("HP:");
-		hpLabel.setSize( 25, 25 );
-		hpLabel.setLocation( 70, 40 );
 		hpLabel.setVisible(false);
 		compNames.add("HPLabel");
 		comps.put( compNames.get(compNames.size()-1), hpLabel );
-		add(hpLabel);
+		statPanel.add(hpLabel);
 		
 		JTextField hp = new JTextField();
 		hp.setToolTipText("Hit Points");
-		hp.setSize( 20, 25 );
-		hp.setLocation( 95, 40 );
+		hp.setColumns(5);
 		hp.setVisible(false);
 		compNames.add("HP");
 		comps.put( compNames.get(compNames.size()-1), hp );
-		add(hp);
+		statPanel.add(hp);
 		
 		JLabel speedLabel = new JLabel();
 		speedLabel.setText("Speed:");
-		speedLabel.setSize( 40, 25 );
-		speedLabel.setLocation( 15, 65 );
 		speedLabel.setVisible(false);
 		compNames.add("SpeedLabel");
 		comps.put( compNames.get(compNames.size()-1), speedLabel );
-		add(speedLabel);
+		statPanel.add(speedLabel);
 		
 		JTextField speed = new JTextField();
 		speed.setToolTipText("in feet");
-		speed.setSize( 20, 25 );
-		speed.setLocation( 60, 65 );
+		speed.setColumns(3);
 		speed.setVisible(false);
 		compNames.add("Speed");
 		comps.put( compNames.get(compNames.size()-1), speed );
-		add(speed);
+		statPanel.add(speed);
 		
 		JLabel abLabel = new JLabel();
 		abLabel.setText("Ability Modifiers:");
-		abLabel.setSize( 100, 25 );
-		abLabel.setLocation( 15, 90 );
 		abLabel.setVisible(false);
 		compNames.add("AbilitiesLabel");
 		comps.put( compNames.get(compNames.size()-1), abLabel );
@@ -128,8 +133,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField ab = new JTextField();
 		ab.setToolTipText("STR  DEX  CON  INT  WIS  CHA");
-		ab.setSize( 120, 25 );
-		ab.setLocation( 15, 115 );
+		ab.setColumns(36);
 		ab.setVisible(false);
 		compNames.add("Abilities");
 		comps.put( compNames.get(compNames.size()-1), ab );
@@ -137,16 +141,13 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JLabel challLabel = new JLabel();
 		challLabel.setText("Chall:");
-		challLabel.setSize( 35, 25 );
-		challLabel.setLocation( 120, 40 );
 		challLabel.setVisible(false);
 		compNames.add("ChallengeLabel");
 		comps.put( compNames.get(compNames.size()-1), challLabel );
 		add(challLabel);
 		
 		JTextField challenge = new JTextField();
-		challenge.setSize( 30, 25 );
-		challenge.setLocation( 155, 40 );
+		challenge.setColumns(3);
 		challenge.setVisible(false);
 		compNames.add("Challenge");
 		comps.put( compNames.get(compNames.size()-1), challenge );
@@ -154,8 +155,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField xp = new JTextField();
 		xp.setText(" XP");
-		xp.setSize( 25, 25 );
-		xp.setLocation( 185, 40 );
+		xp.setColumns(7);
 		xp.setVisible(false);
 		compNames.add("XP");
 		comps.put( compNames.get(compNames.size()-1), xp );
@@ -163,8 +163,6 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JLabel actionLabel = new JLabel();
 		actionLabel.setText("Attacks:");
-		actionLabel.setSize( 50, 25 );
-		actionLabel.setLocation( 230, 15 );
 		actionLabel.setVisible(false);
 		compNames.add("AttackLabel");
 		comps.put( compNames.get(compNames.size()-1), actionLabel );
@@ -172,8 +170,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckName1 = new JTextField();
 		atckName1.setToolTipText("Attack Name");
-		atckName1.setSize( 80, 25 );
-		atckName1.setLocation( 230, 40 );
+		atckName1.setColumns(10);
 		atckName1.setVisible(false);
 		compNames.add("AttackName1");
 		comps.put( compNames.get(compNames.size()-1), atckName1 );
@@ -181,8 +178,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckBonus1 = new JTextField();
 		atckBonus1.setToolTipText("Attack Bonus");
-		atckBonus1.setSize( 20, 25 );
-		atckBonus1.setLocation( 310, 40 );
+		atckBonus1.setColumns(3);
 		atckBonus1.setVisible(false);
 		compNames.add("AttackBonus1");
 		comps.put( compNames.get(compNames.size()-1), atckBonus1 );
@@ -190,8 +186,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckRange1 = new JTextField();
 		atckRange1.setToolTipText("Range (separated by \"/ \" )");
-		atckRange1.setSize( 40, 25 );
-		atckRange1.setLocation( 330, 40 );
+		atckRange1.setColumns(8);
 		atckRange1.setVisible(false);
 		compNames.add("AttackRange1");
 		comps.put( compNames.get(compNames.size()-1), atckRange1 );
@@ -199,8 +194,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckDmg1 = new JTextField();
 		atckDmg1.setToolTipText("Damage");
-		atckDmg1.setSize( 40, 25 );
-		atckDmg1.setLocation( 370, 40 );
+		atckDmg1.setColumns(8);
 		atckDmg1.setVisible(false);
 		compNames.add("AttackDamage1");
 		comps.put( compNames.get(compNames.size()-1), atckDmg1 );
@@ -208,8 +202,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckDmgType1 = new JTextField();
 		atckDmgType1.setToolTipText("Damage Type (one letter)");
-		atckDmgType1.setSize( 20, 25 );
-		atckDmgType1.setLocation( 410, 40 );
+		atckDmgType1.setColumns(2);
 		atckDmgType1.setVisible(false);
 		compNames.add("AttackDamageType1");
 		comps.put( compNames.get(compNames.size()-1), atckDmgType1 );
@@ -217,8 +210,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckNotes1 = new JTextField();
 		atckNotes1.setToolTipText("Additional Notes");
-		atckNotes1.setSize( 50, 25 );
-		atckNotes1.setLocation( 430, 40 );
+		atckNotes1.setColumns(20);
 		atckNotes1.setVisible(false);
 		compNames.add("AttackNotes1");
 		comps.put( compNames.get(compNames.size()-1), atckNotes1 );
@@ -226,8 +218,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckName2 = new JTextField();
 		atckName2.setToolTipText("Attack Name");
-		atckName2.setSize( 80, 25 );
-		atckName2.setLocation( 230, 65 );
+		atckName2.setColumns(10);
 		atckName2.setVisible(false);
 		compNames.add("AttackName2");
 		comps.put( compNames.get(compNames.size()-1), atckName2 );
@@ -235,8 +226,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckBonus2 = new JTextField();
 		atckBonus2.setToolTipText("Attack Bonus");
-		atckBonus2.setSize( 20, 25 );
-		atckBonus2.setLocation( 310, 65 );
+		atckBonus2.setColumns(3);
 		atckBonus2.setVisible(false);
 		compNames.add("AttackBonus2");
 		comps.put( compNames.get(compNames.size()-1), atckBonus2 );
@@ -244,8 +234,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckRange2 = new JTextField();
 		atckRange2.setToolTipText("Range (separated by \"/ \" )");
-		atckRange2.setSize( 40, 25 );
-		atckRange2.setLocation( 330, 65 );
+		atckRange2.setColumns(8);
 		atckRange2.setVisible(false);
 		compNames.add("AttackRange2");
 		comps.put( compNames.get(compNames.size()-1), atckRange2 );
@@ -253,8 +242,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckDmg2 = new JTextField();
 		atckDmg2.setToolTipText("Damage");
-		atckDmg2.setSize( 40, 25 );
-		atckDmg2.setLocation( 370, 65 );
+		atckDmg2.setColumns(8);
 		atckDmg2.setVisible(false);
 		compNames.add("AttackDamage2");
 		comps.put( compNames.get(compNames.size()-1), atckDmg2 );
@@ -262,8 +250,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckDmgType2 = new JTextField();
 		atckDmgType2.setToolTipText("Damage Type (one letter)");
-		atckDmgType2.setSize( 20, 25 );
-		atckDmgType2.setLocation( 410, 65 );
+		atckDmgType2.setColumns(2);
 		atckDmgType2.setVisible(false);
 		compNames.add("AttackDamageType2");
 		comps.put( compNames.get(compNames.size()-1), atckDmgType2 );
@@ -271,8 +258,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckNotes2 = new JTextField();
 		atckNotes2.setToolTipText("Additional Notes");
-		atckNotes2.setSize( 50, 25 );
-		atckNotes2.setLocation( 430, 65 );
+		atckNotes2.setColumns(20);
 		atckNotes2.setVisible(false);
 		compNames.add("AttackNotes2");
 		comps.put( compNames.get(compNames.size()-1), atckNotes2 );
@@ -280,8 +266,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckName3 = new JTextField();
 		atckName3.setToolTipText("Attack Name");
-		atckName3.setSize( 80, 25 );
-		atckName3.setLocation( 230, 90 );
+		atckName3.setColumns(10);
 		atckName3.setVisible(false);
 		compNames.add("AttackName3");
 		comps.put( compNames.get(compNames.size()-1), atckName3 );
@@ -289,8 +274,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckBonus3 = new JTextField();
 		atckBonus3.setToolTipText("Attack Bonus");
-		atckBonus3.setSize( 20, 25 );
-		atckBonus3.setLocation( 310, 90 );
+		atckBonus3.setColumns(3);
 		atckBonus3.setVisible(false);
 		compNames.add("AttackBonus3");
 		comps.put( compNames.get(compNames.size()-1), atckBonus3 );
@@ -298,8 +282,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckRange3 = new JTextField();
 		atckRange3.setToolTipText("Range (separated by \"/ \" )");
-		atckRange3.setSize( 40, 25 );
-		atckRange3.setLocation( 330, 90 );
+		atckRange3.setColumns(8);
 		atckRange3.setVisible(false);
 		compNames.add("AttackRange3");
 		comps.put( compNames.get(compNames.size()-1), atckRange3 );
@@ -307,8 +290,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckDmg3 = new JTextField();
 		atckDmg3.setToolTipText("Damage");
-		atckDmg3.setSize( 40, 25 );
-		atckDmg3.setLocation( 370, 90 );
+		atckDmg3.setColumns(8);
 		atckDmg3.setVisible(false);
 		compNames.add("AttackDamage3");
 		comps.put( compNames.get(compNames.size()-1), atckDmg3 );
@@ -316,8 +298,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckDmgType3 = new JTextField();
 		atckDmgType3.setToolTipText("Damage Type (one letter)");
-		atckDmgType3.setSize( 20, 25 );
-		atckDmgType3.setLocation( 410, 90 );
+		atckDmgType3.setColumns(2);
 		atckDmgType3.setVisible(false);
 		compNames.add("AttackDamageType3");
 		comps.put( compNames.get(compNames.size()-1), atckDmgType3 );
@@ -325,8 +306,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JTextField atckNotes3 = new JTextField();
 		atckNotes3.setToolTipText("Additional Notes");
-		atckNotes3.setSize( 50, 25 );
-		atckNotes3.setLocation( 430, 90 );
+		atckNotes3.setColumns(20);
 		atckNotes3.setVisible(false);
 		compNames.add("AttackNotes3");
 		comps.put( compNames.get(compNames.size()-1), atckNotes3 );
@@ -334,19 +314,18 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JLabel addInfoLabel = new JLabel();
 		addInfoLabel.setText("Additional Information:");
-		addInfoLabel.setSize( 140, 25 );
-		addInfoLabel.setLocation( 15, 140 );
 		addInfoLabel.setVisible(false);
 		compNames.add("AdditionalInformationLabel");
 		comps.put( compNames.get(compNames.size()-1), addInfoLabel );
 		add(addInfoLabel);
 		
 		JTextArea addInfo = new JTextArea();
+		addInfo.setText("");
 		addInfo.setWrapStyleWord(true);
 		addInfo.setLineWrap(true);
 		addInfo.setFont(new Font("Courier", Font.PLAIN, 16));
-		addInfo.setSize( 470, 350 );
-		addInfo.setLocation( 15, 165 );
+		addInfo.setRows(20);
+		addInfo.setColumns(60);
 		addInfo.setVisible(false);
 		compNames.add("AdditionalInformation");
 		comps.put( compNames.get(compNames.size()-1), addInfo );
@@ -354,37 +333,42 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		
 		JButton complete = new JButton("Complete Creature");
 		complete.setToolTipText("Saves Creature");
-		complete.setSize( 150, 25 );
-		complete.setLocation( 340, 5 );
 		complete.addActionListener(this);
 		complete.setVisible(false);
 		compNames.add("CompleteCreature");
 		comps.put( compNames.get(compNames.size()-1), complete );
 		add(complete);
 
+		JPanel deletePanel = new JPanel();
+		deletePanel.setLayout(new FlowLayout( FlowLayout.LEFT, 0, 0 ));
+		add(deletePanel);
+		
 		JButton delete = new JButton("Delete Creature:");
-		delete.setSize( 150, 25 );
-		delete.setLocation( 97, 110 );
 		delete.addActionListener(this);
 		compNames.add("Delete");
 		comps.put( compNames.get(compNames.size()-1), delete );
-		add(delete);
+		deletePanel.add(delete);
+		
+		deletePanel.add(new JLabel("   "));//spacer
 		
 		JTextField deleteName = new JTextField();
 		deleteName.setToolTipText("Creature to Delete");
-		deleteName.setSize( 150, 25 );
-		deleteName.setLocation( 253, 110 );
+		deleteName.setColumns(15);
 		compNames.add("DeleteName");
 		comps.put( compNames.get(compNames.size()-1), deleteName );
-		add(deleteName);
+		deletePanel.add(deleteName);
 
+		deletePanel.add(new JLabel("                     "));
+		
+		JPanel listPanel = new JPanel();
+		listPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 0, 0 ));
+		add(listPanel);
+		
 		JButton list = new JButton("List Creatures");
-		list.setSize( 175, 25 );
-		list.setLocation( 162, 150 );
 		list.addActionListener(this);
 		compNames.add("List");
 		comps.put( compNames.get(compNames.size()-1), list );
-		add(list);
+		listPanel.add(list);
 	}
 
 	@Override
@@ -434,6 +418,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 				turnOffAll();
 				
 				setSize(getPreferredSize());
+				setLayout(new FlowLayout( FlowLayout.LEFT, 10, 10 ));
 				for( int i = 0; i < 3; i++ )
 					comps.get(compNames.get(i)).setVisible(true);
 				for( int i = 37; i < 40; i++ ) 
@@ -446,6 +431,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 				turnOffAll();
 
 				setSize( 505, 580 );
+				setLayout(new FlowLayout( FlowLayout.LEFT, 10, 10 ));
 				
 				for( int i = 3; i < 37; i++ )
 					comps.get(compNames.get(i)).setVisible(true);
