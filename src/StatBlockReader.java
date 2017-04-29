@@ -593,6 +593,8 @@ public class StatBlockReader extends JFrame implements ActionListener {
 						}
 					case 19: case 21: case 25: case 27: case 31: case 33://damages and notes:
 						creatures.writeUTF( ((JTextField)comps.get( compNames.get(i) )).getText() );
+						if( i == 33 )
+							creatures.writeBoolean(false);
 						break;
 					case 17: case 23: case 29://attack bonuses:
 						creatures.writeByte( Integer.parseInt(((JTextField)comps.get( compNames.get(i) )).getText()) );
@@ -660,11 +662,12 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	}
 	
 	private String lookUp( String creatureName ) {
+		String output = "";
+		RandomAccessFile creatures = null;
 		try {
 			
-			RandomAccessFile creatures = new RandomAccessFile( creatureName + ".dat", "r" );
+			creatures = new RandomAccessFile( creatureName + ".dat", "r" );
 			
-			String output = "";
 			output += creatures.readUTF() + "\n";
 			
 			output += "AC: " + creatures.readShort() + "\t";
@@ -716,9 +719,9 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog( null, "No Creature of that Name Found", "Filing Error", JOptionPane.ERROR_MESSAGE );
 		} catch( IOException e ) {
 			if( e.equals(new Exception("Stream Closed")) ) {
-				System.out.println("Saved");
+				
 			} else {
-				System.out.println( "saveCreature():" );
+				System.out.println( "lookUp(String):" );
 				e.printStackTrace();
 				JOptionPane.showMessageDialog( null, "Unknown Filing Error", "Filing Error", JOptionPane.ERROR_MESSAGE );
 			}
@@ -727,7 +730,16 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			e.printStackTrace();
 			JOptionPane.showInternalMessageDialog( null, e.getMessage(), "Error", ERROR );
 		}
-		return null;
+		
+		//close creatures:
+		if( creatures != null )
+			try {
+				creatures.close();
+			} catch( IOException e ) {
+				e.printStackTrace();
+			}
+		
+		return "E ERROR READING\n" + output;
 	}
 	
 	public static void main( String[] args ) {
