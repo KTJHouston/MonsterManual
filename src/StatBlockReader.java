@@ -1,5 +1,7 @@
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -12,388 +14,298 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	
 	private static final long serialVersionUID = 1;
 	private HashMap<String, Component> comps;
-	private ArrayList<String> compNames;
 	
 	public StatBlockReader() {
-		initializeFrames();
+		initializeScreens();
 	}
 	
-	private void initializeFrames() {
+	private void initializeScreens() {
 		setTitle("Stat Blocks");
-		setLayout(null);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setSize( 500, 250 );
+		setSize( 550, 215 );
 		setPreferredSize(getSize());
 		setLocationByPlatform(true);
 		
 		comps = new HashMap<String, Component>();
-		compNames = new ArrayList<String>();
 		
-		JButton createNew = new JButton("Create New Stat Block");
-		createNew.setSize( 175, 25 );
-		createNew.setLocation( 162, 30 );
-		createNew.addActionListener(this);
-		compNames.add("CreateNew");
-		comps.put( compNames.get(compNames.size()-1), createNew );
-		add(createNew);
-
-		JButton lookUp = new JButton("Look Up Stat Block:");
-		lookUp.setSize( 150, 25 );
-		lookUp.setLocation( 97, 70 );
+		initializeOpeningScreen();
+		initializeNewCreatureScreen();
+	}
+	
+	private void initializeOpeningScreen() {
+		setLayout(new FlowLayout( FlowLayout.CENTER, 0, 10 ));
+		
+		JPanel openingScreen = new JPanel();
+		openingScreen.setLayout(new GridLayout( 4, 2, 10, 10 ));
+		comps.put( "PanelOpeningScreen", openingScreen );
+		add(openingScreen);
+		
+		JButton newCreature = new JButton("New Creature");
+		newCreature.addActionListener(this);
+		newCreature.setToolTipText("Creates a new creature file");
+		comps.put( "ButtonNewCreature", newCreature );
+		openingScreen.add(newCreature);
+		
+		openingScreen.add(new JLabel(" "));
+		
+		JButton lookUp = new JButton("Look Up");
 		lookUp.addActionListener(this);
-		compNames.add("LookUp");
-		comps.put( compNames.get(compNames.size()-1), lookUp );
-		add(lookUp);
+		lookUp.setToolTipText("Look Up the stats of a creature");
+		comps.put( "ButtonLookUp", lookUp );
+		openingScreen.add(lookUp);
 		
 		JTextField lookUpName = new JTextField();
-		lookUpName.setToolTipText("Creature to Look Up");
-		lookUpName.setSize( 150, 25 );
-		lookUpName.setLocation( 253, 70 );
-		compNames.add("LookUpName");
-		comps.put( compNames.get(compNames.size()-1), lookUpName );
-		add(lookUpName);
+		lookUpName.addActionListener(this);
+		lookUpName.setToolTipText("The name of the creature to look up");
+		lookUpName.setColumns(10);
+		comps.put( "TextFieldLookUpName", lookUpName );
+		openingScreen.add(lookUpName);
 		
-		JTextField name = new JTextField("Creature Name");
-		name.setToolTipText("Creature Name");
-		name.setSize( 100, 25 );
-		name.setLocation( 15, 15 );
-		name.setVisible(false);
-		compNames.add("CreatureName");
-		comps.put( compNames.get(compNames.size()-1), name );
-		add(name);
-		
-		JLabel acLabel = new JLabel();
-		acLabel.setText("AC:");
-		acLabel.setSize( 25, 25 );
-		acLabel.setLocation( 15, 40 );
-		acLabel.setVisible(false);
-		compNames.add("ACLabel");
-		comps.put( compNames.get(compNames.size()-1), acLabel );
-		add(acLabel);
-		
-		JTextField ac = new JTextField();
-		ac.setToolTipText("Armor Class");
-		ac.setSize( 20, 25 );
-		ac.setLocation( 40, 40 );
-		ac.setVisible(false);
-		compNames.add("AC");
-		comps.put( compNames.get(compNames.size()-1), ac );
-		add(ac);
-		
-		JLabel hpLabel = new JLabel();
-		hpLabel.setText("HP:");
-		hpLabel.setSize( 25, 25 );
-		hpLabel.setLocation( 70, 40 );
-		hpLabel.setVisible(false);
-		compNames.add("HPLabel");
-		comps.put( compNames.get(compNames.size()-1), hpLabel );
-		add(hpLabel);
-		
-		JTextField hp = new JTextField();
-		hp.setToolTipText("Hit Points");
-		hp.setSize( 20, 25 );
-		hp.setLocation( 95, 40 );
-		hp.setVisible(false);
-		compNames.add("HP");
-		comps.put( compNames.get(compNames.size()-1), hp );
-		add(hp);
-		
-		JLabel speedLabel = new JLabel();
-		speedLabel.setText("Speed:");
-		speedLabel.setSize( 40, 25 );
-		speedLabel.setLocation( 15, 65 );
-		speedLabel.setVisible(false);
-		compNames.add("SpeedLabel");
-		comps.put( compNames.get(compNames.size()-1), speedLabel );
-		add(speedLabel);
-		
-		JTextField speed = new JTextField();
-		speed.setToolTipText("in feet");
-		speed.setSize( 20, 25 );
-		speed.setLocation( 60, 65 );
-		speed.setVisible(false);
-		compNames.add("Speed");
-		comps.put( compNames.get(compNames.size()-1), speed );
-		add(speed);
-		
-		JLabel abLabel = new JLabel();
-		abLabel.setText("Ability Modifiers:");
-		abLabel.setSize( 100, 25 );
-		abLabel.setLocation( 15, 90 );
-		abLabel.setVisible(false);
-		compNames.add("AbilitiesLabel");
-		comps.put( compNames.get(compNames.size()-1), abLabel );
-		add(abLabel);
-		
-		JTextField ab = new JTextField();
-		ab.setToolTipText("STR  DEX  CON  INT  WIS  CHA");
-		ab.setSize( 120, 25 );
-		ab.setLocation( 15, 115 );
-		ab.setVisible(false);
-		compNames.add("Abilities");
-		comps.put( compNames.get(compNames.size()-1), ab );
-		add(ab);
-		
-		JLabel challLabel = new JLabel();
-		challLabel.setText("Chall:");
-		challLabel.setSize( 35, 25 );
-		challLabel.setLocation( 120, 40 );
-		challLabel.setVisible(false);
-		compNames.add("ChallengeLabel");
-		comps.put( compNames.get(compNames.size()-1), challLabel );
-		add(challLabel);
-		
-		JTextField challenge = new JTextField();
-		challenge.setSize( 30, 25 );
-		challenge.setLocation( 155, 40 );
-		challenge.setVisible(false);
-		compNames.add("Challenge");
-		comps.put( compNames.get(compNames.size()-1), challenge );
-		add(challenge);
-		
-		JTextField xp = new JTextField();
-		xp.setText(" XP");
-		xp.setSize( 25, 25 );
-		xp.setLocation( 185, 40 );
-		xp.setVisible(false);
-		compNames.add("XP");
-		comps.put( compNames.get(compNames.size()-1), xp );
-		add(xp);
-		
-		JLabel actionLabel = new JLabel();
-		actionLabel.setText("Attacks:");
-		actionLabel.setSize( 50, 25 );
-		actionLabel.setLocation( 230, 15 );
-		actionLabel.setVisible(false);
-		compNames.add("AttackLabel");
-		comps.put( compNames.get(compNames.size()-1), actionLabel );
-		add(actionLabel);
-		
-		JTextField atckName1 = new JTextField();
-		atckName1.setToolTipText("Attack Name");
-		atckName1.setSize( 80, 25 );
-		atckName1.setLocation( 230, 40 );
-		atckName1.setVisible(false);
-		compNames.add("AttackName1");
-		comps.put( compNames.get(compNames.size()-1), atckName1 );
-		add(atckName1);
-		
-		JTextField atckBonus1 = new JTextField();
-		atckBonus1.setToolTipText("Attack Bonus");
-		atckBonus1.setSize( 20, 25 );
-		atckBonus1.setLocation( 310, 40 );
-		atckBonus1.setVisible(false);
-		compNames.add("AttackBonus1");
-		comps.put( compNames.get(compNames.size()-1), atckBonus1 );
-		add(atckBonus1);
-		
-		JTextField atckRange1 = new JTextField();
-		atckRange1.setToolTipText("Range (separated by \"/ \" )");
-		atckRange1.setSize( 40, 25 );
-		atckRange1.setLocation( 330, 40 );
-		atckRange1.setVisible(false);
-		compNames.add("AttackRange1");
-		comps.put( compNames.get(compNames.size()-1), atckRange1 );
-		add(atckRange1);
-		
-		JTextField atckDmg1 = new JTextField();
-		atckDmg1.setToolTipText("Damage");
-		atckDmg1.setSize( 40, 25 );
-		atckDmg1.setLocation( 370, 40 );
-		atckDmg1.setVisible(false);
-		compNames.add("AttackDamage1");
-		comps.put( compNames.get(compNames.size()-1), atckDmg1 );
-		add(atckDmg1);
-		
-		JTextField atckDmgType1 = new JTextField();
-		atckDmgType1.setToolTipText("Damage Type (one letter)");
-		atckDmgType1.setSize( 20, 25 );
-		atckDmgType1.setLocation( 410, 40 );
-		atckDmgType1.setVisible(false);
-		compNames.add("AttackDamageType1");
-		comps.put( compNames.get(compNames.size()-1), atckDmgType1 );
-		add(atckDmgType1);
-		
-		JTextField atckNotes1 = new JTextField();
-		atckNotes1.setToolTipText("Additional Notes");
-		atckNotes1.setSize( 50, 25 );
-		atckNotes1.setLocation( 430, 40 );
-		atckNotes1.setVisible(false);
-		compNames.add("AttackNotes1");
-		comps.put( compNames.get(compNames.size()-1), atckNotes1 );
-		add(atckNotes1);
-		
-		JTextField atckName2 = new JTextField();
-		atckName2.setToolTipText("Attack Name");
-		atckName2.setSize( 80, 25 );
-		atckName2.setLocation( 230, 65 );
-		atckName2.setVisible(false);
-		compNames.add("AttackName2");
-		comps.put( compNames.get(compNames.size()-1), atckName2 );
-		add(atckName2);
-		
-		JTextField atckBonus2 = new JTextField();
-		atckBonus2.setToolTipText("Attack Bonus");
-		atckBonus2.setSize( 20, 25 );
-		atckBonus2.setLocation( 310, 65 );
-		atckBonus2.setVisible(false);
-		compNames.add("AttackBonus2");
-		comps.put( compNames.get(compNames.size()-1), atckBonus2 );
-		add(atckBonus2);
-		
-		JTextField atckRange2 = new JTextField();
-		atckRange2.setToolTipText("Range (separated by \"/ \" )");
-		atckRange2.setSize( 40, 25 );
-		atckRange2.setLocation( 330, 65 );
-		atckRange2.setVisible(false);
-		compNames.add("AttackRange2");
-		comps.put( compNames.get(compNames.size()-1), atckRange2 );
-		add(atckRange2);
-		
-		JTextField atckDmg2 = new JTextField();
-		atckDmg2.setToolTipText("Damage");
-		atckDmg2.setSize( 40, 25 );
-		atckDmg2.setLocation( 370, 65 );
-		atckDmg2.setVisible(false);
-		compNames.add("AttackDamage2");
-		comps.put( compNames.get(compNames.size()-1), atckDmg2 );
-		add(atckDmg2);
-		
-		JTextField atckDmgType2 = new JTextField();
-		atckDmgType2.setToolTipText("Damage Type (one letter)");
-		atckDmgType2.setSize( 20, 25 );
-		atckDmgType2.setLocation( 410, 65 );
-		atckDmgType2.setVisible(false);
-		compNames.add("AttackDamageType2");
-		comps.put( compNames.get(compNames.size()-1), atckDmgType2 );
-		add(atckDmgType2);
-		
-		JTextField atckNotes2 = new JTextField();
-		atckNotes2.setToolTipText("Additional Notes");
-		atckNotes2.setSize( 50, 25 );
-		atckNotes2.setLocation( 430, 65 );
-		atckNotes2.setVisible(false);
-		compNames.add("AttackNotes2");
-		comps.put( compNames.get(compNames.size()-1), atckNotes2 );
-		add(atckNotes2);
-		
-		JTextField atckName3 = new JTextField();
-		atckName3.setToolTipText("Attack Name");
-		atckName3.setSize( 80, 25 );
-		atckName3.setLocation( 230, 90 );
-		atckName3.setVisible(false);
-		compNames.add("AttackName3");
-		comps.put( compNames.get(compNames.size()-1), atckName3 );
-		add(atckName3);
-		
-		JTextField atckBonus3 = new JTextField();
-		atckBonus3.setToolTipText("Attack Bonus");
-		atckBonus3.setSize( 20, 25 );
-		atckBonus3.setLocation( 310, 90 );
-		atckBonus3.setVisible(false);
-		compNames.add("AttackBonus3");
-		comps.put( compNames.get(compNames.size()-1), atckBonus3 );
-		add(atckBonus3);
-		
-		JTextField atckRange3 = new JTextField();
-		atckRange3.setToolTipText("Range (separated by \"/ \" )");
-		atckRange3.setSize( 40, 25 );
-		atckRange3.setLocation( 330, 90 );
-		atckRange3.setVisible(false);
-		compNames.add("AttackRange3");
-		comps.put( compNames.get(compNames.size()-1), atckRange3 );
-		add(atckRange3);
-		
-		JTextField atckDmg3 = new JTextField();
-		atckDmg3.setToolTipText("Damage");
-		atckDmg3.setSize( 40, 25 );
-		atckDmg3.setLocation( 370, 90 );
-		atckDmg3.setVisible(false);
-		compNames.add("AttackDamage3");
-		comps.put( compNames.get(compNames.size()-1), atckDmg3 );
-		add(atckDmg3);
-		
-		JTextField atckDmgType3 = new JTextField();
-		atckDmgType3.setToolTipText("Damage Type (one letter)");
-		atckDmgType3.setSize( 20, 25 );
-		atckDmgType3.setLocation( 410, 90 );
-		atckDmgType3.setVisible(false);
-		compNames.add("AttackDamageType3");
-		comps.put( compNames.get(compNames.size()-1), atckDmgType3 );
-		add(atckDmgType3);
-		
-		JTextField atckNotes3 = new JTextField();
-		atckNotes3.setToolTipText("Additional Notes");
-		atckNotes3.setSize( 50, 25 );
-		atckNotes3.setLocation( 430, 90 );
-		atckNotes3.setVisible(false);
-		compNames.add("AttackNotes3");
-		comps.put( compNames.get(compNames.size()-1), atckNotes3 );
-		add(atckNotes3);
-		
-		JLabel addInfoLabel = new JLabel();
-		addInfoLabel.setText("Additional Information:");
-		addInfoLabel.setSize( 140, 25 );
-		addInfoLabel.setLocation( 15, 140 );
-		addInfoLabel.setVisible(false);
-		compNames.add("AdditionalInformationLabel");
-		comps.put( compNames.get(compNames.size()-1), addInfoLabel );
-		add(addInfoLabel);
-		
-		JTextArea addInfo = new JTextArea();
-		addInfo.setWrapStyleWord(true);
-		addInfo.setLineWrap(true);
-		addInfo.setFont(new Font("Courier", Font.PLAIN, 16));
-		addInfo.setSize( 470, 350 );
-		addInfo.setLocation( 15, 165 );
-		addInfo.setVisible(false);
-		compNames.add("AdditionalInformation");
-		comps.put( compNames.get(compNames.size()-1), addInfo );
-		add(addInfo);
-		
-		JButton complete = new JButton("Complete Creature");
-		complete.setToolTipText("Saves Creature");
-		complete.setSize( 150, 25 );
-		complete.setLocation( 340, 5 );
-		complete.addActionListener(this);
-		complete.setVisible(false);
-		compNames.add("CompleteCreature");
-		comps.put( compNames.get(compNames.size()-1), complete );
-		add(complete);
-
-		JButton delete = new JButton("Delete Creature:");
-		delete.setSize( 150, 25 );
-		delete.setLocation( 97, 110 );
+		JButton delete = new JButton("Delete Creature");
 		delete.addActionListener(this);
-		compNames.add("Delete");
-		comps.put( compNames.get(compNames.size()-1), delete );
-		add(delete);
+		delete.setToolTipText("Delete a creature from the saves");
+		comps.put( "ButtonDelete", delete );
+		openingScreen.add(delete);
 		
 		JTextField deleteName = new JTextField();
-		deleteName.setToolTipText("Creature to Delete");
-		deleteName.setSize( 150, 25 );
-		deleteName.setLocation( 253, 110 );
-		compNames.add("DeleteName");
-		comps.put( compNames.get(compNames.size()-1), deleteName );
-		add(deleteName);
-
-		JButton list = new JButton("List Creatures");
-		list.setSize( 175, 25 );
-		list.setLocation( 162, 150 );
-		list.addActionListener(this);
-		compNames.add("List");
-		comps.put( compNames.get(compNames.size()-1), list );
-		add(list);
+		deleteName.addActionListener(this);
+		deleteName.setToolTipText("The name of the creature to delete");
+		deleteName.setColumns(10);
+		comps.put( "TextFieldDeleteNaem", deleteName );
+		openingScreen.add(deleteName);
+		
+		JButton listCreatures = new JButton("List Creatures");
+		listCreatures.addActionListener(this);
+		listCreatures.setToolTipText("List the names of saved creatures in alphabetical order");
+		comps.put( "ButtonListCreatures", listCreatures );
+		openingScreen.add(listCreatures);
 	}
-
+	
+	private void initializeNewCreatureScreen() {
+		JPanel creatureCreator = new JPanel();
+		creatureCreator.setLayout(new GridLayout( 0, 1, 0, 10 ));
+		creatureCreator.setVisible(false);
+		comps.put( "PanelCreatureCreator", creatureCreator );
+		add(creatureCreator);
+		
+		JPanel namePanel = new JPanel();
+		namePanel.setLayout(new FlowLayout( FlowLayout.LEFT, 10, 0 ));
+		creatureCreator.add(namePanel);
+		
+		JTextField nameField = new JTextField();
+		nameField.setColumns(10);
+		nameField.setToolTipText("Creature Name");
+		namePanel.add(nameField);
+		comps.put( "TextFieldCreatureName", nameField );
+		
+		JPanel statPanel = new JPanel();
+		statPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 10, 0 ));
+		creatureCreator.add(statPanel);
+		
+		JLabel acLabel = new JLabel("AC:");
+		acLabel.setToolTipText("Armor Class");
+		statPanel.add(acLabel);
+		
+		JTextField acField = new JTextField();
+		acField.setColumns(3);
+		acField.setToolTipText("Armor Class");
+		comps.put( "TextField", acField );
+		statPanel.add(acField);
+		
+		statPanel.add(new JLabel("  "));
+		
+		JLabel hpLabel = new JLabel("HP:");
+		hpLabel.setToolTipText("Health Points");
+		statPanel.add(hpLabel);
+		
+		JTextField hpField = new JTextField();
+		hpField.setColumns(8);
+		hpField.setToolTipText("Example: 24(4d8+6)");
+		comps.put( "TextFieldHP", hpField );
+		statPanel.add(hpField);
+		
+		statPanel.add(new JLabel("  "));
+		
+		JLabel speedLabel = new JLabel("Speed:");
+		speedLabel.setToolTipText("Speed in Feet");
+		statPanel.add(speedLabel);
+		
+		JTextField speedField = new JTextField();
+		speedField.setColumns(3);
+		speedField.setToolTipText("Speed in Feet");
+		comps.put( "TextFieldSpeed", speedField );
+		statPanel.add(speedField);
+		
+		JPanel challengePanel = new JPanel();
+		challengePanel.setLayout(new FlowLayout( FlowLayout.LEFT, 10, 0 ));
+		creatureCreator.add(challengePanel);
+		
+		challengePanel.add(new JLabel("Challenge:"));
+		
+		JTextField challengeField = new JTextField();
+		challengeField.setToolTipText("Challenge Rating");
+		challengeField.setColumns(3);
+		comps.put( "TextFieldChallenge", challengeField );
+		challengePanel.add(challengeField);
+		
+		JTextField xpField = new JTextField();
+		xpField.setToolTipText("XP");
+		xpField.setText(" XP");
+		xpField.setColumns(5);
+		comps.put( "TextFieldXP", xpField );
+		challengePanel.add(xpField);
+		
+		JPanel abilityPanel = new JPanel();
+		abilityPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 10, 0 ));
+		creatureCreator.add(abilityPanel);
+		
+		abilityPanel.add(new JLabel("Ability Modifiers:"));
+		
+		JTextField abilityField = new JTextField();
+		abilityField.setToolTipText("STR  DEX  CON  INT  WIS  CHA");
+		abilityField.setColumns(15);
+		comps.put( "TextFieldAbility", abilityField );
+		abilityPanel.add(abilityField);
+		
+		JPanel attackLabelPanel = new JPanel();
+		attackLabelPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 10, 0 ));
+		attackLabelPanel.add(new JLabel("Attacks:"));
+		creatureCreator.add(attackLabelPanel);
+		
+		JPanel attackPanel = new JPanel();
+		attackPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 10, 0 ));
+		comps.put( "PanelAttack1", attackPanel );
+		creatureCreator.add(attackPanel);
+		
+		JTextField attackField = new JTextField();
+		attackField.setToolTipText("Attack Name");
+		attackField.setColumns(5);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Attack Bonus");
+		attackField.setColumns(3);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Range");
+		attackField.setColumns(6);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Damage");
+		attackField.setColumns(6);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Damage Type");
+		attackField.setColumns(2);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Additional Notes");
+		attackField.setColumns(10);
+		attackPanel.add(attackField);
+		
+		//Attack 2:
+		attackPanel = new JPanel();
+		attackPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 10, 0 ));
+		comps.put( "PanelAttack1", attackPanel );
+		creatureCreator.add(attackPanel);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Attack Name");
+		attackField.setColumns(5);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Attack Bonus");
+		attackField.setColumns(3);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Range");
+		attackField.setColumns(6);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Damage");
+		attackField.setColumns(6);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Damage Type");
+		attackField.setColumns(2);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Additional Notes");
+		attackField.setColumns(10);
+		attackPanel.add(attackField);
+		
+		//Attack 3:
+		attackPanel = new JPanel();
+		attackPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 10, 0 ));
+		comps.put( "PanelAttack1", attackPanel );
+		creatureCreator.add(attackPanel);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Attack Name");
+		attackField.setColumns(5);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Attack Bonus");
+		attackField.setColumns(3);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Range");
+		attackField.setColumns(6);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Damage");
+		attackField.setColumns(6);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Damage Type");
+		attackField.setColumns(2);
+		attackPanel.add(attackField);
+		
+		attackField = new JTextField();
+		attackField.setToolTipText("Additional Notes");
+		attackField.setColumns(10);
+		attackPanel.add(attackField);
+		
+		//JPanel additionalNotesPanel = new JPanel();
+		//additionalNotesPanel.setLayout(new FlowLayout( FlowLayout.LEFT, 10, 0 ));
+		//creatureCreator.add(additionalNotesPanel);
+		
+		JTextArea additionalNotesArea = new JTextArea();
+		additionalNotesArea.setText("");
+		additionalNotesArea.setWrapStyleWord(true);
+		additionalNotesArea.setLineWrap(true);
+		additionalNotesArea.setRows(10);
+		additionalNotesArea.setColumns(50);
+		additionalNotesArea.setFont(new Font( "Courier", Font.PLAIN, 16 ));
+		comps.put( "TextAreaAdditionalNotes", additionalNotesArea );
+		
+		
+		JScrollPane additionalNotesScroll = new JScrollPane(additionalNotesArea);
+		additionalNotesScroll.setAutoscrolls(true);
+		add(additionalNotesScroll);
+	}
+	
 	@Override
 	public void actionPerformed( ActionEvent e ) {
-		if( e.getSource().equals(comps.get("CreateNew")) ) {
+		if( e.getSource().equals(comps.get("ButtonNewCreature")) ) {
 			
 			newScreen( Screens.CREATE_NEW );
 			
-		} else if( e.getSource().equals(comps.get("LookUp")) ) {
+		} else if( e.getSource().equals(comps.get("ButtonLookUp")) || e.getSource().equals(comps.get("TextFieldLookUpName")) ) {
 			
 			String creatureName = ((JTextField)comps.get("LookUpName")).getText();
 			String creatureInfo = lookUp( creatureName );
@@ -402,7 +314,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			//start thread:
 			new Thread(new InfoFrame( creatureName, creatureInfo )).start();
 			
-		} else if( e.getSource().equals(comps.get("Delete")) ) {
+		} else if( e.getSource().equals(comps.get("ButtonDelete")) || e.getSource().equals(comps.get("TextFieldDeleteName")) ) {
 			
 			if( JOptionPane.showConfirmDialog( null, "Are you sure you want to delete this creature?" ) == 0 )
 				if( deleteCreatureFile( ((JTextField)comps.get("DeleteName")).getText() ) ) {
@@ -411,12 +323,12 @@ public class StatBlockReader extends JFrame implements ActionListener {
 				} else
 					JOptionPane.showMessageDialog( null, "Creature Not Found" );
 			
-		} else if( e.getSource().equals(comps.get("List")) ) {
+		} else if( e.getSource().equals(comps.get("ButtonListCreatures")) ) {
 			
 			String list = orderNames();
 			new Thread(new InfoFrame( "List", list )).start();
 			
-		} else if( e.getSource().equals(comps.get("CompleteCreature")) ) {
+		} else if( e.getSource().equals(comps.get("ButtonCompleteCreature")) ) {
 			
 			if( saveCreature() ) {
 				newScreen( Screens.OPENING );
@@ -431,35 +343,30 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	private void newScreen( Screens s ) {
 		switch(s) {
 			case OPENING:
-				turnOffAll();
+				
+				comps.get("PanelCreatureCreator").setVisible(false);
 				
 				setSize(getPreferredSize());
-				for( int i = 0; i < 3; i++ )
-					comps.get(compNames.get(i)).setVisible(true);
-				for( int i = 37; i < 40; i++ ) 
-					comps.get(compNames.get(i)).setVisible(true);
-				comps.get("LookUpName").requestFocus();
+				setLayout(new FlowLayout( FlowLayout.CENTER, 0, 10 ));
 				
+				comps.get("PanelOpeningScreen").setVisible(true);
+				comps.get("TextFieldLookUpName").requestFocus();
 				
 				break;
 			case CREATE_NEW:
-				turnOffAll();
-
-				setSize( 505, 580 );
 				
-				for( int i = 3; i < 37; i++ )
-					comps.get(compNames.get(i)).setVisible(true);
-				comps.get("CreatureName").requestFocus();
+				comps.get("PanelOpeningScreen").setVisible(false);
+
+				this.setResizable(true);
+				setSize( 550, 580 );
+				setLayout(new FlowLayout( FlowLayout.LEFT, 0, 10 ));
+				
+				comps.get("PanelCreatureCreator").setVisible(true);
+				comps.get("TextFieldCreatureName").requestFocus();
 				
 				break;
 			default:
 				break;
-		}
-	}
-	
-	private void turnOffAll() {
-		for( String n : compNames ) {
-			comps.get(n).setVisible(false);
 		}
 	}
 	
