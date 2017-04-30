@@ -446,10 +446,10 @@ public class StatBlockReader extends JFrame implements ActionListener {
 
 	@SuppressWarnings("resource") 
 	private boolean saveCreature() {
+		String name = ((JTextField)comps.get("TextFieldCreatureName")).getText();
 		try {
 			
 			//save name of creature to save index later && check is already exists:
-			String name = ((JTextField)comps.get("TextFieldCreatureName")).getText();
 			if( name.length() == 0 ) throw new Exception( "No Creature Name" );
 			
 			//start file readers:
@@ -511,6 +511,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 								if( i == 0 ) throw new Exception("No Attack Added");
 								creatures.writeBoolean(false);
 								i = 3;
+								j = 6;
 								break;
 							} else if( i != 0 ) {
 								creatures.writeBoolean(true);
@@ -571,6 +572,13 @@ public class StatBlockReader extends JFrame implements ActionListener {
 			System.out.println( "saveCreature():" );
 			e.printStackTrace();
 			JOptionPane.showMessageDialog( null, e.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE );
+		}
+		
+		try {
+			File toDelete = new File( name + ".dat" );
+			toDelete.delete();
+		} catch( Exception e ) {
+			
 		}
 		return false;
 	}
