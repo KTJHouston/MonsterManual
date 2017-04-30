@@ -643,6 +643,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		} catch( FileNotFoundException e ) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog( null, "No Creature of that Name Found", "Filing Error", JOptionPane.ERROR_MESSAGE );
+			return null;
 		} catch( IOException e ) {
 			if( e.equals(new Exception("Stream Closed")) ) {
 				
@@ -665,7 +666,7 @@ public class StatBlockReader extends JFrame implements ActionListener {
 				e.printStackTrace();
 			}
 		
-		return "E ERROR READING\n" + output;
+		return "ERROR READING\n" + output;
 	}
 	
 	public static void main( String[] args ) {
