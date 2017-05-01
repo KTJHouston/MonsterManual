@@ -584,7 +584,15 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	}
 
 	private void resetCreatureBoxes() {
-		//TODO write
+		String e = "";
+		((JTextField)comps.get("TextFieldAbility")).setText(e);
+		((JTextField)comps.get("TextFieldCreatureName")).setText(e);
+		((JTextField)comps.get("TextFieldXP")).setText(" XP");
+		((JTextField)comps.get("TextFieldAC")).setText(e);
+		((JTextArea)comps.get("TextAreaAdditionalInfo")).setText(e);
+		((JTextField)comps.get("TextFieldHP")).setText(e);
+		((JTextField)comps.get("TextFieldChallenge")).setText(e);
+		((JTextField)comps.get("TextFieldSpeed")).setText(e);
 	}
 	
 	private String lookUp( String creatureName ) {
