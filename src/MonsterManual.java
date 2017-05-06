@@ -7,20 +7,16 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.StringTokenizer;
 import javax.swing.*;
 
-public class StatBlockReader extends JFrame implements ActionListener {
+public class MonsterManual extends JFrame implements ActionListener {
 	
 	private static final long serialVersionUID = 1;
 	private HashMap<String, Component> comps;
 	
-	public StatBlockReader() {
+	public MonsterManual() {
 		initializeScreens();
-		Set<String> s = comps.keySet();
-		for( String n : s )
-			System.out.println(n);
 	}
 	
 	private void initializeScreens() {
@@ -397,7 +393,6 @@ public class StatBlockReader extends JFrame implements ActionListener {
 		File[] fileList = file.listFiles();
 		if( fileList == null )
 			System.out.println("NULL");
-		System.out.println(fileList.length);
 		ArrayList<String> list = new ArrayList<String>();
 		for( File f : fileList )
 			list.add( new StringTokenizer( f.getName(), "." ).nextToken() );
@@ -678,8 +673,13 @@ public class StatBlockReader extends JFrame implements ActionListener {
 	}
 	
 	public static void main( String[] args ) {
-		JFrame f = new StatBlockReader();
+		JFrame f = new MonsterManual();
 		f.setVisible(true);
 	}
 	
+}
+
+enum Screens {
+	OPENING,
+	CREATE_NEW;
 }
