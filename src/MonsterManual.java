@@ -16,14 +16,14 @@ public class MonsterManual extends JFrame implements ActionListener {
 	private HashMap<String, Component> comps;
 	
 	public MonsterManual() {
-		initializeScreens();
+		initialize();
 	}
 	
-	private void initializeScreens() {
+	private void initialize() {
 		setTitle("Stat Blocks");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setSize( 550, 205 );
+		setSize( 550, 250 );
 		setPreferredSize(getSize());
 		setLocationByPlatform(true);
 		
@@ -37,7 +37,7 @@ public class MonsterManual extends JFrame implements ActionListener {
 		setLayout(new FlowLayout( FlowLayout.CENTER, 0, 10 ));
 		
 		JPanel openingScreen = new JPanel();
-		openingScreen.setLayout(new GridLayout( 4, 2, 10, 10 ));
+		openingScreen.setLayout(new GridLayout( 5, 2, 10, 10 ));
 		comps.put( "PanelOpeningScreen", openingScreen );
 		add(openingScreen);
 		
@@ -62,7 +62,20 @@ public class MonsterManual extends JFrame implements ActionListener {
 		comps.put( "TextFieldLookUpName", lookUpName );
 		openingScreen.add(lookUpName);
 		
-		JButton delete = new JButton("Delete Creature");
+		JButton edit = new JButton("Edit");
+		edit.addActionListener(this);
+		edit.setToolTipText("Edit a creature's saved information");
+		comps.put( "ButtonEdit", edit );
+		openingScreen.add(edit);
+		
+		JTextField editName = new JTextField();
+		editName.addActionListener(this);
+		editName.setToolTipText("The name of the creature to edit");
+		editName.setColumns(10);
+		comps.put( "TextFieldEditName", editName );
+		openingScreen.add(editName);
+		
+		JButton delete = new JButton("Delete");
 		delete.addActionListener(this);
 		delete.setToolTipText("Delete a creature from the saves");
 		comps.put( "ButtonDelete", delete );
@@ -324,6 +337,9 @@ public class MonsterManual extends JFrame implements ActionListener {
 			//start thread:
 			new Thread(new InfoFrame( creatureName, creatureInfo )).start();
 			
+		} else if( e.getSource().equals(comps.get("ButtonEdit")) || e.getSource().equals(comps.get("TextFieldEditName")) ) { 
+		
+		
 		} else if( e.getSource().equals(comps.get("ButtonDelete")) || e.getSource().equals(comps.get("TextFieldDeleteName")) ) {
 			
 			if( JOptionPane.showConfirmDialog( null, "Are you sure you want to delete this creature?" ) == 0 )
