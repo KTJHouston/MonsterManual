@@ -1,6 +1,7 @@
 import java.awt.FlowLayout;
 import java.awt.Font;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class InfoFrame extends JFrame implements Runnable {
@@ -26,19 +27,23 @@ public class InfoFrame extends JFrame implements Runnable {
 	private void initialize() {
 		setTitle(title);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setSize( 800, 300 );
+		setResizable(false);
+		setSize( 800, 600 );
 		setLocationByPlatform(true);
-		setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		setLayout(new FlowLayout( FlowLayout.CENTER, 5, 10 ));
 		
 		box = new JTextArea();
 		box.setText(info);
 		box.setWrapStyleWord(true);
-		box.setRows(6);
+		box.setRows(21);
 		box.setFont(new Font("Courier", Font.PLAIN, 18));
-		box.setColumns(67);
+		box.setColumns(68);
 		box.setLineWrap(true);
 		box.setEditable(isEditable);
-		add(box);
+		
+		JScrollPane scroll = new JScrollPane(box);
+		scroll.setAutoscrolls(false);
+		add(scroll);
 	}
 	
 	@Override
