@@ -14,6 +14,7 @@ public class MonsterManual extends JFrame implements ActionListener {
 	
 	private static final long serialVersionUID = 1;
 	private HashMap<String, Component> comps;
+	private boolean isEditing = false;
 	
 	public MonsterManual() {
 		initialize();
@@ -365,9 +366,20 @@ public class MonsterManual extends JFrame implements ActionListener {
 			
 		} else if( e.getSource().equals(comps.get("ButtonCompleteCreature")) ) {
 			
-			if( saveCreature() ) {
+			String creatureName = ((JTextField)comps.get("TextFieldEditName")).getText();
+			if(isEditing) {
+				new File(creatureName + ".dat").renameTo(new File(creatureName + "TMP.dat"));
+			}
+			if(saveCreature()) {
 				newScreen( Screens.OPENING );
 				resetCreatureBoxes();
+				if(isEditing) {
+					new File(creatureName + "TMP.dat").delete();
+					isEditing = false;
+				}
+			} else if(isEditing) {
+				new File(creatureName + ".dat").delete();
+				new File(creatureName + "TMP.dat").renameTo(new File(creatureName + ".dat"));
 			}
 			
 		} else {
@@ -409,7 +421,6 @@ public class MonsterManual extends JFrame implements ActionListener {
 			
 			//attacks:
 			boolean areMoreAttacks = true;
-			String attacks = "";
 			for(int i = 0; i < 3 && areMoreAttacks; i++) {
 				JPanel p = (JPanel)comps.get( "PanelAttack" + (i+1) );
 				for(int j = 0; j < 6; j++) {
@@ -449,9 +460,12 @@ public class MonsterManual extends JFrame implements ActionListener {
 			
 			//Additional Notes:
 			((JTextArea)comps.get("TextAreaAdditionalInfo")).setText(creature.readUTF());
+
+			isEditing = true;
 			
 		} catch(Exception e) {
 			//TODO write catch
+			resetCreatureBoxes();
 		} finally {
 			try {
 				if(creature != null) creature.close();
@@ -459,7 +473,6 @@ public class MonsterManual extends JFrame implements ActionListener {
 				JOptionPane.showMessageDialog( null, "RAF not closed when Editing", "I/O Error", JOptionPane.ERROR_MESSAGE );
 			}
 		}
-		//TODO save again after editing
 	}
 	
 	private String lookUp( String creatureName ) {
@@ -629,7 +642,6 @@ public class MonsterManual extends JFrame implements ActionListener {
 		return output;
 	}
 
-	@SuppressWarnings("resource") 
 	private void resetCreatureBoxes() {
 		String e = "";
 		((JTextField)comps.get("TextFieldAbility")).setText(e);
@@ -640,6 +652,14 @@ public class MonsterManual extends JFrame implements ActionListener {
 		((JTextField)comps.get("TextFieldHP")).setText(e);
 		((JTextField)comps.get("TextFieldChallenge")).setText(e);
 		((JTextField)comps.get("TextFieldSpeed")).setText(e);
+
+		//attacks:
+		for( int i = 0; i < 3; i++ ) {
+			JPanel p = (JPanel)comps.get( "PanelAttack" + (i+1) );
+			for( int j = 0; j < 6; j++ ) {
+				((JTextField)p.getComponent(j)).setText(e);
+			}
+		}
 	}
 	
 	private boolean saveCreature() {
