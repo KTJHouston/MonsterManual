@@ -342,8 +342,9 @@ public class MonsterManual extends JFrame implements ActionListener {
 			
 			String creatureName =  ((JTextField)comps.get("TextFieldEditName")).getText();
 			if(creatureName.length() >= 1) {
-				loadForEdit(creatureName);
-				newScreen(Screens.CREATE_NEW);
+				if(loadForEdit(creatureName)) {
+					newScreen(Screens.CREATE_NEW);
+				}
 			} else {
 				JOptionPane.showMessageDialog( null, "No Creature Name: " + creatureName, "Input Error", JOptionPane.ERROR_MESSAGE );
 			}
@@ -392,11 +393,10 @@ public class MonsterManual extends JFrame implements ActionListener {
 		return f.delete();
 	}
 	
-	private void loadForEdit(String creatureName) {
+	private boolean loadForEdit(String creatureName) {
 		RandomAccessFile creature = null;
 		try {
 			creature = new RandomAccessFile(creatureName + ".dat", "r");
-			//TODO make sure file exists
 			
 			((JTextField)comps.get("TextFieldCreatureName")).setText(creature.readUTF());//name
 			((JTextField)comps.get("TextFieldAC")).setText(creature.readShort()+"");//AC
@@ -442,7 +442,7 @@ public class MonsterManual extends JFrame implements ActionListener {
 								if(range == 5) {
 									//ignore
 								} else {
-									((JTextField)p.getComponent(j)).setText(creature.readShort() + "ft");
+									((JTextField)p.getComponent(j)).setText(range + "ft");
 								}
 							}
 							break;
@@ -462,10 +462,15 @@ public class MonsterManual extends JFrame implements ActionListener {
 			((JTextArea)comps.get("TextAreaAdditionalInfo")).setText(creature.readUTF());
 
 			isEditing = true;
-			
+			return true;
+		} catch(FileNotFoundException fnf) {
+			JOptionPane.showMessageDialog( null, "File Not Found when loading for Editing", "I/O Error", JOptionPane.ERROR_MESSAGE );
+			return false;
 		} catch(Exception e) {
 			//TODO write catch
+			e.printStackTrace();
 			resetCreatureBoxes();
+			return false;
 		} finally {
 			try {
 				if(creature != null) creature.close();
