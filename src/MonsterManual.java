@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import javax.swing.*;
+import utils.MyFocusListener;
 
 public class MonsterManual extends JFrame implements ActionListener {
 	
@@ -287,6 +288,7 @@ public class MonsterManual extends JFrame implements ActionListener {
 		lookUpName.addActionListener(this);
 		lookUpName.setToolTipText("The name of the creature to look up");
 		lookUpName.setColumns(10);
+		lookUpName.addFocusListener(new MyFocusListener(lookUpName));
 		comps.put( "TextFieldLookUpName", lookUpName );
 		openingScreen.add(lookUpName);
 		
@@ -300,6 +302,7 @@ public class MonsterManual extends JFrame implements ActionListener {
 		editName.addActionListener(this);
 		editName.setToolTipText("The name of the creature to edit");
 		editName.setColumns(10);
+		editName.addFocusListener(new MyFocusListener(editName));
 		comps.put( "TextFieldEditName", editName );
 		openingScreen.add(editName);
 		
@@ -313,6 +316,7 @@ public class MonsterManual extends JFrame implements ActionListener {
 		deleteName.addActionListener(this);
 		deleteName.setToolTipText("The name of the creature to delete");
 		deleteName.setColumns(10);
+		deleteName.addFocusListener(new MyFocusListener(deleteName));
 		comps.put( "TextFieldDeleteName", deleteName );
 		openingScreen.add(deleteName);
 		
